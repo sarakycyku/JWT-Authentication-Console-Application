@@ -42,6 +42,7 @@ def read_password(prompt: str = "Enter password: ") -> str:
 
         chars.append(char)
         print("*", end="", flush=True)
+
 def send_request(payload: dict[str, Any]) -> dict[str, Any]:
     """Dërgon një kërkesë JSON te serveri përmes TLS dhe kthen përgjigjen."""
     if not SERVER_CERT_PATH.exists():
@@ -63,4 +64,23 @@ def send_request(payload: dict[str, Any]) -> dict[str, Any]:
                 data.extend(chunk)
     if not data:
         raise ConnectionResetError("Server closed the connection without sending a response.")
-    return json.loads(data.decode("utf-8"))        
+    return json.loads(data.decode("utf-8")) 
+
+def print_token_summary(token: str) -> None:
+    """Shfaq informata rreth token-it (sub, exp) nëse public key egziston."""
+    if not PUBLIC_KEY_PATH.exists():
+        return
+    try:
+        public_key = PUBLIC_KEY_PATH.read_text(encoding="utf-8")
+        claims = jwt.decode(
+            token,
+            public_key,
+            algorithms=[JWT_ALGORITHM],
+            issuer=JWT_ISSUER,
+            audience=JWT_AUDIENCE,
+        )
+    except jwt.InvalidTokenError:
+        return
+
+    expires_at = datetime.fromtimestamp(claims["exp"], tz=timezone.utc)
+    print(f"Token valid for user '{claims['sub']}' until {expires_at.isoformat()}.")       
