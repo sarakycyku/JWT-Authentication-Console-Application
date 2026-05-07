@@ -42,3 +42,25 @@ def read_password(prompt: str = "Enter password: ") -> str:
 
         chars.append(char)
         print("*", end="", flush=True)
+def send_request(payload: dict[str, Any]) -> dict[str, Any]:
+    """Dërgon një kërkesë JSON te serveri përmes TLS dhe kthen përgjigjen."""
+    if not SERVER_CERT_PATH.exists():
+        raise FileNotFoundError(
+            "server_cert.pem mungon. Startoje serverin një herë që ta gjenerojë certifikatën."
+        )
+
+    context = ssl.create_default_context(cafile=str(SERVER_CERT_PATH))
+    context.check_hostname = False
+
+    with socket.create_connection((HOST, PORT), timeout=10) as raw_socket:
+        with context.wrap_socket(raw_socket, server_hostname="localhost") as sock:
+            sock.sendall(json.dumps(payload).encode("utf-8") + b"\n")
+            data = bytearray()
+            while not data.endswith(b"\n"):
+                chunk = sock.recv(4096)
+                if not chunk:
+                    break
+                data.extend(chunk)
+    if not data:
+        raise ConnectionResetError("Server closed the connection without sending a response.")
+    return json.loads(data.decode("utf-8"))        
