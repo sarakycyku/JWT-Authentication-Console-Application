@@ -83,4 +83,27 @@ def print_token_summary(token: str) -> None:
         return
 
     expires_at = datetime.fromtimestamp(claims["exp"], tz=timezone.utc)
-    print(f"Token valid for user '{claims['sub']}' until {expires_at.isoformat()}.")       
+    print(f"Token valid for user '{claims['sub']}' until {expires_at.isoformat()}.")  
+
+def login() -> str | None:
+    """Bën login te serveri dhe kthen token-in nëse suksesshëm."""
+    while True:
+        username = input("Enter username: ").strip()
+        password = read_password("Enter password: ")
+        response = send_request({"command": "login", "username": username, "password": password})
+
+        if response.get("status") == 200:
+            token = str(response["token"])
+            print("Logged in. JWT token is:")
+            print(token)
+            print_token_summary(token)
+            return token
+
+        print(response.get("error", "Login failed"))
+        while True:
+            choice = input("1. Try again\n2. Quit\nChoose option: ").strip()
+            if choice == "1":
+                break
+            if choice == "2":
+                return None
+            print("Invalid option.")     
