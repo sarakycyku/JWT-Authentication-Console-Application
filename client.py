@@ -137,3 +137,20 @@ def logout(token: str | None) -> None:
         except OSError:
             pass
     print("Logging out...") 
+
+def main() -> None:
+    """Funksioni kryesor i client-it."""
+    token = login()
+    if not token:
+        return
+
+    while True:
+        command = input("Enter command ('request_data' or 'logout'): ").strip().lower()
+        if command == "request_data":
+            request_protected_data(token)
+        elif command == "logout":
+            logout(token)
+            token = None
+            break
+        else:
+            print("Unknown command.")    
