@@ -153,4 +153,24 @@ def main() -> None:
             token = None
             break
         else:
-            print("Unknown command.")    
+            print("Unknown command.")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nClient stopped.")
+    except ConnectionRefusedError:
+        print("Could not connect to server on 127.0.0.1:5050.")
+        print("Startoje serverin në një terminal tjetër me:")
+        print(r".\.venv\Scripts\python.exe server.py")
+    except TimeoutError:
+        print("Connection timed out while contacting the server.")
+    except ConnectionResetError as exc:
+        print(f"Server connection was closed: {exc}")
+    except OSError as exc:
+        print(f"Connection error: {exc}")
+    except json.JSONDecodeError:
+        print("Server returned an invalid or incomplete response.")
+    except FileNotFoundError as exc:
+        print(exc)                
