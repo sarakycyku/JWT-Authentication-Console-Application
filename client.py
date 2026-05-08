@@ -106,4 +106,34 @@ def login() -> str | None:
                 break
             if choice == "2":
                 return None
-            print("Invalid option.")     
+            print("Invalid option.")    
+
+
+def request_protected_data(token: str | None) -> None:
+    """Kërkon të dhënat e mbrojtura nga serveri duke përdorur token-in."""
+    if not token:
+        print("You are not logged in.")
+        return
+
+    print("Accessing protected data...")
+    response = send_request(
+        {
+            "command": "protected-data",
+            "authorization": f"Bearer {token}",
+        }
+    )
+    if response.get("status") == 200:
+        print("Protected data received:")
+        print(json.dumps({"data": response["data"]}, indent=2))
+    else:
+        print(response.get("error", "Request failed"))
+
+
+def logout(token: str | None) -> None:
+    """Fshin token-in dhe përfundon sesionin."""
+    if token:
+        try:
+            send_request({"command": "logout"})
+        except OSError:
+            pass
+    print("Logging out...") 
