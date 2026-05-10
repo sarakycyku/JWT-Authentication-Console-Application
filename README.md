@@ -39,6 +39,8 @@ server_cert.pem
 server_cert_key.pem
 ```
 
+Keto `.pem` files vendosen ne `.gitignore` sepse permbajne celesa privat/certifikata qe gjenerohen lokalisht dhe nuk duhet te ruhen apo shperndahen ne GitHub per arsye sigurie.
+
 Nese deshiron me i kriju vetem keto files pa e lene serverin hapur, ekzekuto:
 
 ```powershell
