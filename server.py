@@ -12,7 +12,7 @@ from typing import Any
 
 import jwt
 
-from jwt_utils import (
+from jws_utils import (
     SERVER_CERT_KEY_PATH,
     SERVER_CERT_PATH,
     create_token,

@@ -10,7 +10,7 @@ from typing import Any
 
 import jwt
 
-from jwt_utils import (
+from jws_utils import (
     JWT_ALGORITHM,
     JWT_AUDIENCE,
     JWT_ISSUER,
