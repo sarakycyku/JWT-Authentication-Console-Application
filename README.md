@@ -45,7 +45,7 @@ User-at testues:
 admin / admin123
 sara / sara123
 andi / andi123
-rubeja / ruveja123
+ruvejda / ruvejda123
 ```
 
 Pas login-it te suksesshem, klienti e ruan JWT token-in ne memorie lokale dhe shfaq keto komanda:
@@ -85,8 +85,4 @@ server_cert_key.pem
 
 Keto `.pem` files vendosen ne `.gitignore` sepse permbajne celesa privat/certifikata qe gjenerohen lokalisht dhe nuk duhet te ruhen apo shperndahen ne GitHub per arsye sigurie.
 
-Nese deshiron me i kriju vetem keto files pa e lene serverin hapur, ekzekuto:
 
-```powershell
-python -c "from jwt_utils import ensure_jwt_keys, ensure_tls_certificate; ensure_jwt_keys(); ensure_tls_certificate(); print('pem files created')"
-```
