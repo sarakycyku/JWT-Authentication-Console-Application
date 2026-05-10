@@ -53,3 +53,16 @@ def authenticate(username: str, password: str) -> bool:
     salt = base64.b64decode(user["salt"])
     candidate_hash = hash_password(password, salt)
     return hmac.compare_digest(candidate_hash, user["password_hash"])
+
+def handle_login(request: dict[str, Any]) -> dict[str, Any]:
+    username = str(request.get("username", ""))
+    password = str(request.get("password", ""))
+    print("Credentials received. Verifying...")
+
+    if not authenticate(username, password):
+        print("Authentication failed.")
+        return {"status": 401, "error": "Unauthorized: invalid username or password"}
+
+    token = create_token(username)
+    print("Authentication successful. JWT issued.")
+    return {"status": 200, "message": "Logged in", "token": token}
