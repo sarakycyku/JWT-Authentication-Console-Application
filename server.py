@@ -94,3 +94,22 @@ def route_request(request: dict[str, Any]) -> dict[str, Any]:
     if command == "logout":
         return {"status": 200, "message": "Logged out"}
     return {"status": 400, "error": "Bad request: unknown command"}
+def handle_client(client_socket: ssl.SSLSocket, address: tuple[str, int]) -> None:
+    print(f"Connection established from {address}. Awaiting request...")
+    try:
+        request = receive_json(client_socket)
+        response = route_request(request)
+        send_json(client_socket, response)
+    except (json.JSONDecodeError, ValueError) as exc:
+        send_json(client_socket, {"status": 400, "error": f"Bad request: {exc}"})
+    except OSError as exc:
+        print(f"Connection error: {exc}")
+    except Exception as exc:
+        print(f"Unexpected server error while handling {address}: {exc}")
+        traceback.print_exc()
+        try:
+            send_json(client_socket, {"status": 500, "error": "Internal server error"})
+        except OSError:
+            pass
+    finally:
+        client_socket.close()
