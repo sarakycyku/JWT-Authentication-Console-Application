@@ -45,3 +45,11 @@ USERS = {
     "andi": make_user_record("andi123"),
     "rubeja": make_user_record("ruveja123"),
 }
+
+def authenticate(username: str, password: str) -> bool:
+    user = USERS.get(username)
+    if not user:
+        return False
+    salt = base64.b64decode(user["salt"])
+    candidate_hash = hash_password(password, salt)
+    return hmac.compare_digest(candidate_hash, user["password_hash"])
