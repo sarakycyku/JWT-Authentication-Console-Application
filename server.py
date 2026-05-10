@@ -54,6 +54,28 @@ def authenticate(username: str, password: str) -> bool:
     candidate_hash = hash_password(password, salt)
     return hmac.compare_digest(candidate_hash, user["password_hash"])
 
+
+def receive_json(client_socket: ssl.SSLSocket) -> dict[str, Any]:
+    data = bytearray()
+    while not data.endswith(b"\n"):
+        chunk = client_socket.recv(4096)
+        if not chunk:
+            break
+        data.extend(chunk)
+
+    if not data:
+        raise ValueError("empty request")
+
+    request = json.loads(data.decode("utf-8"))
+    if not isinstance(request, dict):
+        raise ValueError("request must be a JSON object")
+    return request
+
+
+def send_json(client_socket: ssl.SSLSocket, response: dict[str, Any]) -> None:
+    client_socket.sendall(json.dumps(response).encode("utf-8") + b"\n")
+
+
 def handle_login(request: dict[str, Any]) -> dict[str, Any]:
     username = str(request.get("username", ""))
     password = str(request.get("password", ""))
