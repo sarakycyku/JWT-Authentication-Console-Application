@@ -23,7 +23,7 @@ Projekti i krijon automatikisht `.pem` files kur startohet serveri:
 python server.py
 ```
 
-Gjate startimit, serveri thirr funksionet `ensure_jwt_keys()` dhe `ensure_tls_certificate()` nga `jws_utils.py`.
+Gjate startimit, serveri thirr funksionet `ensure_jwt_keys()` dhe `ensure_tls_certificate()` nga `jwt_utils.py`.
 
 `ensure_jwt_keys()` krijon celesat per JWT:
 
@@ -44,5 +44,5 @@ Keto `.pem` files vendosen ne `.gitignore` sepse permbajne celesa privat/certifi
 Nese deshiron me i kriju vetem keto files pa e lene serverin hapur, ekzekuto:
 
 ```powershell
-python -c "from jws_utils import ensure_jwt_keys, ensure_tls_certificate; ensure_jwt_keys(); ensure_tls_certificate(); print('pem files created')"
+python -c "from jwt_utils import ensure_jwt_keys, ensure_tls_certificate; ensure_jwt_keys(); ensure_tls_certificate(); print('pem files created')"
 ```
