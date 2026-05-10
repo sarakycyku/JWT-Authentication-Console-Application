@@ -85,3 +85,12 @@ def handle_protected_data(request: dict[str, Any]) -> dict[str, Any]:
         "data": "This is protected data.",
         "authenticated_user": claims["sub"],
     }
+def route_request(request: dict[str, Any]) -> dict[str, Any]:
+    command = request.get("command")
+    if command == "login":
+        return handle_login(request)
+    if command == "protected-data":
+        return handle_protected_data(request)
+    if command == "logout":
+        return {"status": 200, "message": "Logged out"}
+    return {"status": 400, "error": "Bad request: unknown command"}
