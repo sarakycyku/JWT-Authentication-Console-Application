@@ -135,3 +135,11 @@ def start_server() -> None:
                 raw_client.close()
                 continue
             threading.Thread(target=handle_client, args=(client_socket, address), daemon=True).start()
+if __name__ == "__main__":
+    try:
+        start_server()
+    except KeyboardInterrupt:
+        print("\nServer stopped.")
+    except Exception as exc:
+        print(f"\nServer crashed: {exc}")
+        traceback.print_exc()
