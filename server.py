@@ -43,7 +43,7 @@ USERS = {
     "admin": make_user_record("admin123"),
     "sara": make_user_record("sara123"),
     "andi": make_user_record("andi123"),
-    "rubeja": make_user_record("ruveja123"),
+    "ruvejda": make_user_record("ruvejda123"),
 }
 
 def authenticate(username: str, password: str) -> bool:
