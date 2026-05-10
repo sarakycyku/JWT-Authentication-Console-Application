@@ -113,3 +113,25 @@ def handle_client(client_socket: ssl.SSLSocket, address: tuple[str, int]) -> Non
             pass
     finally:
         client_socket.close()
+def start_server() -> None:
+    ensure_jwt_keys()
+    ensure_tls_certificate()
+
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.load_cert_chain(certfile=SERVER_CERT_PATH, keyfile=SERVER_CERT_KEY_PATH)
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server_socket.bind((HOST, PORT))
+        server_socket.listen()
+        print(f"Server: Waiting for connections on {HOST}:{PORT}...")
+
+        while True:
+            raw_client, address = server_socket.accept()
+            try:
+                client_socket = context.wrap_socket(raw_client, server_side=True)
+            except ssl.SSLError as exc:
+                print(f"TLS handshake failed: {exc}")
+                raw_client.close()
+                continue
+            threading.Thread(target=handle_client, args=(client_socket, address), daemon=True).start()
