@@ -23,7 +23,7 @@ PORT = 5050
 
 
 def read_password(prompt: str = "Enter password: ") -> str:
-    """Lexon password-in pa e shfaqur në console (Windows)."""
+    """Lexon password-in pa e shfaqur ne console (Windows)."""
     print(prompt, end="", flush=True)
     chars: list[str] = []
 
@@ -43,11 +43,12 @@ def read_password(prompt: str = "Enter password: ") -> str:
         chars.append(char)
         print("*", end="", flush=True)
 
+
 def send_request(payload: dict[str, Any]) -> dict[str, Any]:
-    """Dërgon një kërkesë JSON te serveri përmes TLS dhe kthen përgjigjen."""
+    """Dergon nje kerkese JSON te serveri permes TLS dhe kthen pergjigjen."""
     if not SERVER_CERT_PATH.exists():
         raise FileNotFoundError(
-            "server_cert.pem mungon. Startoje serverin një herë që ta gjenerojë certifikatën."
+            "server_cert.pem mungon. Startoje serverin nje here qe ta gjeneroje certifikaten."
         )
 
     context = ssl.create_default_context(cafile=str(SERVER_CERT_PATH))
@@ -62,12 +63,14 @@ def send_request(payload: dict[str, Any]) -> dict[str, Any]:
                 if not chunk:
                     break
                 data.extend(chunk)
+
     if not data:
         raise ConnectionResetError("Server closed the connection without sending a response.")
-    return json.loads(data.decode("utf-8")) 
+    return json.loads(data.decode("utf-8"))
+
 
 def print_token_summary(token: str) -> None:
-    """Shfaq informata rreth token-it (sub, exp) nëse public key egziston."""
+    """Shfaq informata rreth token-it (sub, exp) nese public key ekziston."""
     if not PUBLIC_KEY_PATH.exists():
         return
     try:
@@ -83,10 +86,11 @@ def print_token_summary(token: str) -> None:
         return
 
     expires_at = datetime.fromtimestamp(claims["exp"], tz=timezone.utc)
-    print(f"Token valid for user '{claims['sub']}' until {expires_at.isoformat()}.")  
+    print(f"Token valid for user '{claims['sub']}' until {expires_at.isoformat()}.")
+
 
 def login() -> str | None:
-    """Bën login te serveri dhe kthen token-in nëse suksesshëm."""
+    """Ben login te serveri dhe kthen token-in nese eshte i suksesshem."""
     while True:
         username = input("Enter username: ").strip()
         password = read_password("Enter password: ")
@@ -106,11 +110,11 @@ def login() -> str | None:
                 break
             if choice == "2":
                 return None
-            print("Invalid option.")    
+            print("Invalid option.")
 
 
 def request_protected_data(token: str | None) -> None:
-    """Kërkon të dhënat e mbrojtura nga serveri duke përdorur token-in."""
+    """Kerkon te dhenat e mbrojtura nga serveri duke perdorur token-in."""
     if not token:
         print("You are not logged in.")
         return
@@ -130,13 +134,14 @@ def request_protected_data(token: str | None) -> None:
 
 
 def logout(token: str | None) -> None:
-    """Fshin token-in dhe përfundon sesionin."""
+    """Fshin token-in dhe perfundon sesionin."""
     if token:
         try:
             send_request({"command": "logout"})
         except OSError:
             pass
-    print("Logging out...") 
+    print("Logging out...")
+
 
 def main() -> None:
     """Funksioni kryesor i client-it."""
@@ -155,6 +160,7 @@ def main() -> None:
         else:
             print("Unknown command.")
 
+
 if __name__ == "__main__":
     try:
         main()
@@ -162,7 +168,7 @@ if __name__ == "__main__":
         print("\nClient stopped.")
     except ConnectionRefusedError:
         print("Could not connect to server on 127.0.0.1:5050.")
-        print("Startoje serverin në një terminal tjetër me:")
+        print("Startoje serverin ne nje terminal tjeter me:")
         print(r".\.venv\Scripts\python.exe server.py")
     except TimeoutError:
         print("Connection timed out while contacting the server.")
@@ -173,4 +179,4 @@ if __name__ == "__main__":
     except json.JSONDecodeError:
         print("Server returned an invalid or incomplete response.")
     except FileNotFoundError as exc:
-        print(exc)                
+        print(exc)
