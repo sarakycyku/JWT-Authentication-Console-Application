@@ -15,6 +15,50 @@ Instalo paketat e nevojshme:
 pip install -r requirements.txt
 ```
 
+## Ekzekutimi
+
+Starto serverin ne nje terminal:
+
+```powershell
+python server.py
+```
+
+Pastaj starto klientin ne nje terminal tjeter:
+
+```powershell
+python client.py
+```
+
+Serveri pret lidhje ne:
+
+```text
+127.0.0.1:5050
+```
+
+## Perdorimi
+
+Kur startohet klienti, shkruaj username dhe password.
+
+User-at testues:
+
+```text
+admin / admin123
+sara / sara123
+andi / andi123
+rubeja / ruveja123
+```
+
+Pas login-it te suksesshem, klienti e ruan JWT token-in ne memorie lokale dhe shfaq keto komanda:
+
+```text
+request_data
+logout
+```
+
+`request_data` kerkon te dhenat e mbrojtura nga serveri duke derguar JWT token-in si Bearer token.
+
+`logout` e largon token-in nga klienti dhe e perfundon sesionin.
+
 ## Krijimi i `.pem` files
 
 Projekti i krijon automatikisht `.pem` files kur startohet serveri:
