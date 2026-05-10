@@ -66,3 +66,22 @@ def handle_login(request: dict[str, Any]) -> dict[str, Any]:
     token = create_token(username)
     print("Authentication successful. JWT issued.")
     return {"status": 200, "message": "Logged in", "token": token}
+
+def handle_protected_data(request: dict[str, Any]) -> dict[str, Any]:
+    auth_header = str(request.get("authorization", ""))
+    if not auth_header.startswith("Bearer "):
+        return {"status": 401, "error": "Unauthorized: missing bearer token"}
+
+    token = auth_header.removeprefix("Bearer ").strip()
+    try:
+        claims = validate_token(token)
+    except jwt.ExpiredSignatureError:
+        return {"status": 401, "error": "Unauthorized: token expired"}
+    except jwt.InvalidTokenError:
+        return {"status": 401, "error": "Unauthorized: invalid token"}
+
+    return {
+        "status": 200,
+        "data": "This is protected data.",
+        "authenticated_user": claims["sub"],
+    }
