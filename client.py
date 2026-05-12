@@ -21,6 +21,13 @@ from jwt_utils import (
 HOST = "127.0.0.1"
 PORT = 5050
 
+RESET = "\033[0m"
+CYAN = "\033[96m"
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+MAGENTA = "\033[95m"
+BLUE = "\033[94m"
+
 
 def read_password(prompt: str = "Enter password: ") -> str:
     """Lexon password-in pa e shfaqur ne console (Windows)."""
@@ -69,6 +76,36 @@ def send_request(payload: dict[str, Any]) -> dict[str, Any]:
     return json.loads(data.decode("utf-8"))
 
 
+def colorize_token(token: str) -> str:
+    """Kthen JWT token-in me ngjyra sipas pjeseve: header, payload, signature."""
+    parts = token.split(".")
+    if len(parts) != 3:
+        return token
+
+    header, payload, signature = parts
+    return (
+        f"{MAGENTA}{header}{RESET}."
+        f"{GREEN}{payload}{RESET}."
+        f"{BLUE}{signature}{RESET}"
+    )
+
+
+def print_token_parts(token: str) -> None:
+    """Shfaq JWT token-in te ndare ne header, payload dhe signature."""
+    parts = token.split(".")
+    if len(parts) != 3:
+        print(token)
+        return
+
+    header, payload, signature = parts
+    print("JWT token parts:")
+    print(f"{MAGENTA}Header:{RESET} {MAGENTA}{header}{RESET}")
+    print(f"{GREEN}Payload:{RESET} {GREEN}{payload}{RESET}")
+    print(f"{BLUE}Signature:{RESET} {BLUE}{signature}{RESET}")
+    print("Full token:")
+    print(colorize_token(token))
+
+
 def print_token_summary(token: str) -> None:
     """Shfaq informata rreth token-it (sub, exp) nese public key ekziston."""
     if not PUBLIC_KEY_PATH.exists():
@@ -98,8 +135,8 @@ def login() -> str | None:
 
         if response.get("status") == 200:
             token = str(response["token"])
-            print("Logged in. JWT token is:")
-            print(token)
+            print("Logged in.")
+            print_token_parts(token)
             print_token_summary(token)
             return token
 
