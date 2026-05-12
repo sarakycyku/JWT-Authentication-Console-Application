@@ -1,24 +1,27 @@
 # JWT-Authentication-Console-Application
 
-Ky projekt implementon nje sistem autentikimi me JWT ne nje model client-server me console application. Klienti dergon kredencialet te serveri, serveri i verifikon ato dhe ne rast suksesi krijon nje JWT token. Me kete token klienti mund te kerkoje te dhena te mbrojtura nga serveri.
+## JWT
+JWT (JSON Web Token) eshte nje standard qe perdoret per autentikim dhe shkembim te sigurt te informatave mes klientit dhe serverit. JWT ruan te dhenat ne forme 
+tokeni
 
-## Teknologjite
+Kur nje perdorues ben login, klienti i dergon kredencialet te serveri. Serveri i kontrollon dhe nese jane te sakta krijon nje JWT token. Ky token i kthehet klientit dhe perdoret ne kerkesat e ardhshme per te vertetuar identitetin.
 
-- Python
-- Sockets per komunikim client-server
-- TLS per komunikim te enkriptuar
-- PyJWT per krijim dhe verifikim te JWT
-- Cryptography per RSA keys dhe certifikate TLS
+Avantazhi kryesor i JWT eshte qe perdoruesi nuk ka nevoje te dergoje passwordin ne cdo kerkese. Ne vend te tij perdoret tokeni, i cili permban informata te nevojshme dhe eshte i nenshkruar nga server.
 
-## Struktura e projektit
+JWT perbehet nga 3 pjese kryesore:
 
-```text
-client.py          Client console application
-server.py          Server console application
-jwt_utils.py       Funksionet per JWT keys, TLS certificate, krijim dhe validim te token-it
-requirements.txt   Paketat qe duhet te instalohen
-.gitignore         Fajllat/folderet qe nuk duhet te ngarkohen ne GitHub
-```
+Header i cili permban informacion per tipin e tokenit dhe algoritmin e perdorur per nenshkrim.
+
+Payload qe permban te dhena per perdoruesin, si username, roli ose kohezgjatja e tokenit.
+Signature perdoret per te verifikuar qe tokeni nuk eshte ndryshuar dhe eshte krijuar nga serveri i autorizuar. 
+
+Keto 3 pjese bashkohen dhe krijojne nje string unik qe perdoret si token.
+
+Signature krijohet duke perdorur header, payload dhe nje secret key, te cilat kalojne brenda nje funksioni hash si RS256. Serveri krijon nje hash unik nga keto te dhena dhe e vendos ate si signature te tokenit. Kur klienti e dergon tokenin perseri, serveri i merr perseri header dhe payload, i kalon ne te njejtin funksion hash bashke me secret key dhe krijon nje hash te ri. Nese hash ri eshte i njejte me signature ekzistuese, tokeni konsiderohet valid.
+
+
+
+
 
 ## Pershkrimi i pjeseve te implementuara
 
