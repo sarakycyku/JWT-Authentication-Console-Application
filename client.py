@@ -165,6 +165,7 @@ def request_protected_data(token: str | None) -> None:
     )
     if response.get("status") == 200:
         print("Protected data received:")
+        print(f"Authenticated user: {response.get('authenticated_user')}")
         print(json.dumps({"data": response["data"]}, indent=2))
     else:
         print(response.get("error", "Request failed"))
