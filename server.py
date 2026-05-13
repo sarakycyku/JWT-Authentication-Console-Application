@@ -31,16 +31,18 @@ def hash_password(password: str, salt: bytes) -> str:
     return base64.b64encode(digest).decode("ascii")
 
 
-def make_user_record(password: str) -> dict[str, str]:
+def make_user_record(password: str, role: str = "user") -> dict[str, str]:
     salt = hashlib.sha256(password.encode("utf-8")).digest()[:16]
     return {
         "salt": base64.b64encode(salt).decode("ascii"),
         "password_hash": hash_password(password, salt),
+        "role": role,
     }
 
 
 USERS = {
-    "admin": make_user_record("admin123"),
+    "admin": make_user_record("admin123", "admin"),
+    "user": make_user_record("user123"),
     "sara": make_user_record("sara123"),
     "andi": make_user_record("andi123"),
     "ruvejda": make_user_record("ruvejda123"),
@@ -53,6 +55,11 @@ def authenticate(username: str, password: str) -> bool:
     salt = base64.b64decode(user["salt"])
     candidate_hash = hash_password(password, salt)
     return hmac.compare_digest(candidate_hash, user["password_hash"])
+
+
+def get_user_role(username: str) -> str:
+    user = USERS.get(username, {})
+    return user.get("role", "user")
 
 
 def receive_json(client_socket: ssl.SSLSocket) -> dict[str, Any]:
@@ -85,34 +92,60 @@ def handle_login(request: dict[str, Any]) -> dict[str, Any]:
         print("Authentication failed.")
         return {"status": 401, "error": "Unauthorized: invalid username or password"}
 
-    token = create_token(username)
+    token = create_token(username, get_user_role(username))
     print("Authentication successful. JWT issued.")
     return {"status": 200, "message": "Logged in", "token": token}
 
-def handle_protected_data(request: dict[str, Any]) -> dict[str, Any]:
+
+def get_token_claims(request: dict[str, Any]) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
     auth_header = str(request.get("authorization", ""))
     if not auth_header.startswith("Bearer "):
-        return {"status": 401, "error": "Unauthorized: missing bearer token"}
+        return None, {"status": 401, "error": "Unauthorized: missing bearer token"}
 
     token = auth_header.removeprefix("Bearer ").strip()
     try:
-        claims = validate_token(token)
+        return validate_token(token), None
     except jwt.ExpiredSignatureError:
-        return {"status": 401, "error": "Unauthorized: token expired"}
+        return None, {"status": 401, "error": "Unauthorized: token expired"}
     except jwt.InvalidTokenError:
-        return {"status": 401, "error": "Unauthorized: invalid token"}
+        return None, {"status": 401, "error": "Unauthorized: invalid token"}
+
+
+def handle_protected_data(request: dict[str, Any]) -> dict[str, Any]:
+    claims, error = get_token_claims(request)
+    if error:
+        return error
 
     return {
         "status": 200,
         "data": "This is protected data.",
         "authenticated_user": claims["sub"],
+        "role": claims.get("role", "user"),
     }
+
+
+def handle_admin_data(request: dict[str, Any]) -> dict[str, Any]:
+    claims, error = get_token_claims(request)
+    if error:
+        return error
+    if claims.get("role") != "admin":
+        return {"status": 403, "error": "Forbidden: admin role required"}
+
+    return {
+        "status": 200,
+        "data": "This is admin-only data.",
+        "authenticated_user": claims["sub"],
+    }
+
+
 def route_request(request: dict[str, Any]) -> dict[str, Any]:
     command = request.get("command")
     if command == "login":
         return handle_login(request)
     if command == "protected-data":
         return handle_protected_data(request)
+    if command == "admin-data":
+        return handle_admin_data(request)
     if command == "logout":
         return {"status": 200, "message": "Logged out"}
     return {"status": 400, "error": "Bad request: unknown command"}

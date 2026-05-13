@@ -77,11 +77,12 @@ def ensure_tls_certificate() -> None:
     SERVER_CERT_PATH.write_bytes(cert.public_bytes(serialization.Encoding.PEM))
 
 
-def create_token(username: str) -> str:
+def create_token(username: str, role: str) -> str:
     ensure_jwt_keys()
     now = datetime.now(timezone.utc)
     payload = {
         "sub": username,
+        "role": role,
         "iss": JWT_ISSUER,
         "aud": JWT_AUDIENCE,
         "iat": now,

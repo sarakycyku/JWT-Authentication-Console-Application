@@ -5,7 +5,6 @@ import msvcrt
 import socket
 import ssl
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
 import jwt
@@ -22,15 +21,12 @@ HOST = "127.0.0.1"
 PORT = 5050
 
 RESET = "\033[0m"
-CYAN = "\033[96m"
 GREEN = "\033[92m"
-YELLOW = "\033[93m"
 MAGENTA = "\033[95m"
 BLUE = "\033[94m"
 
 
 def read_password(prompt: str = "Enter password: ") -> str:
-    """Lexon password-in pa e shfaqur ne console (Windows)."""
     print(prompt, end="", flush=True)
     chars: list[str] = []
 
@@ -52,7 +48,6 @@ def read_password(prompt: str = "Enter password: ") -> str:
 
 
 def send_request(payload: dict[str, Any]) -> dict[str, Any]:
-    """Dergon nje kerkese JSON te serveri permes TLS dhe kthen pergjigjen."""
     if not SERVER_CERT_PATH.exists():
         raise FileNotFoundError(
             "server_cert.pem mungon. Startoje serverin nje here qe ta gjeneroje certifikaten."
@@ -77,7 +72,6 @@ def send_request(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def colorize_token(token: str) -> str:
-    """Kthen JWT token-in me ngjyra sipas pjeseve: header, payload, signature."""
     parts = token.split(".")
     if len(parts) != 3:
         return token
@@ -91,23 +85,24 @@ def colorize_token(token: str) -> str:
 
 
 def print_token_parts(token: str) -> None:
-    """Shfaq JWT token-in te ndare ne header, payload dhe signature."""
     parts = token.split(".")
     if len(parts) != 3:
         print(token)
         return
 
-    header, payload, signature = parts
-    print("JWT token parts:")
-    print(f"{MAGENTA}Header:{RESET} {MAGENTA}{header}{RESET}")
-    print(f"{GREEN}Payload:{RESET} {GREEN}{payload}{RESET}")
-    print(f"{BLUE}Signature:{RESET} {BLUE}{signature}{RESET}")
-    print("Full token:")
+    print("JWT token:")
     print(colorize_token(token))
 
 
+def format_claims_for_display(claims: dict[str, Any]) -> dict[str, Any]:
+    formatted = dict(claims)
+    for field in ("iat", "exp"):
+        if field in formatted:
+            formatted[field] = datetime.fromtimestamp(formatted[field], tz=timezone.utc).isoformat()
+    return formatted
+
+
 def print_token_summary(token: str) -> None:
-    """Shfaq informata rreth token-it (sub, exp) nese public key ekziston."""
     if not PUBLIC_KEY_PATH.exists():
         return
     try:
@@ -123,11 +118,15 @@ def print_token_summary(token: str) -> None:
         return
 
     expires_at = datetime.fromtimestamp(claims["exp"], tz=timezone.utc)
-    print(f"Token valid for user '{claims['sub']}' until {expires_at.isoformat()}.")
+    print(
+        f"Token valid for user '{claims['sub']}' "
+        f"with role '{claims.get('role', 'user')}' until {expires_at.isoformat()}."
+    )
+    print("Decoded payload:")
+    print(json.dumps(format_claims_for_display(claims), indent=2))
 
 
 def login() -> str | None:
-    """Ben login te serveri dhe kthen token-in nese eshte i suksesshem."""
     while True:
         username = input("Enter username: ").strip()
         password = read_password("Enter password: ")
@@ -151,7 +150,6 @@ def login() -> str | None:
 
 
 def request_protected_data(token: str | None) -> None:
-    """Kerkon te dhenat e mbrojtura nga serveri duke perdorur token-in."""
     if not token:
         print("You are not logged in.")
         return
@@ -166,13 +164,33 @@ def request_protected_data(token: str | None) -> None:
     if response.get("status") == 200:
         print("Protected data received:")
         print(f"Authenticated user: {response.get('authenticated_user')}")
+        print(f"Role: {response.get('role') or 'user'}")
+        print(json.dumps({"data": response["data"]}, indent=2))
+    else:
+        print(response.get("error", "Request failed"))
+
+
+def request_admin_data(token: str | None) -> None:
+    if not token:
+        print("You are not logged in.")
+        return
+
+    print("Accessing admin data...")
+    response = send_request(
+        {
+            "command": "admin-data",
+            "authorization": f"Bearer {token}",
+        }
+    )
+    if response.get("status") == 200:
+        print("Admin data received:")
+        print(f"Authenticated user: {response.get('authenticated_user')}")
         print(json.dumps({"data": response["data"]}, indent=2))
     else:
         print(response.get("error", "Request failed"))
 
 
 def logout(token: str | None) -> None:
-    """Fshin token-in dhe perfundon sesionin."""
     if token:
         try:
             send_request({"command": "logout"})
@@ -182,15 +200,16 @@ def logout(token: str | None) -> None:
 
 
 def main() -> None:
-    """Funksioni kryesor i client-it."""
     token = login()
     if not token:
         return
 
     while True:
-        command = input("Enter command ('request_data' or 'logout'): ").strip().lower()
+        command = input("Enter command ('request_data', 'admin_data' or 'logout'): ").strip().lower()
         if command == "request_data":
             request_protected_data(token)
+        elif command == "admin_data":
+            request_admin_data(token)
         elif command == "logout":
             logout(token)
             token = None
