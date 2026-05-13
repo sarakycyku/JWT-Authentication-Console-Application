@@ -5,7 +5,6 @@ import msvcrt
 import socket
 import ssl
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
 import jwt
@@ -22,15 +21,12 @@ HOST = "127.0.0.1"
 PORT = 5050
 
 RESET = "\033[0m"
-CYAN = "\033[96m"
 GREEN = "\033[92m"
-YELLOW = "\033[93m"
 MAGENTA = "\033[95m"
 BLUE = "\033[94m"
 
 
 def read_password(prompt: str = "Enter password: ") -> str:
-    """Lexon password-in pa e shfaqur ne console (Windows)."""
     print(prompt, end="", flush=True)
     chars: list[str] = []
 
@@ -52,7 +48,6 @@ def read_password(prompt: str = "Enter password: ") -> str:
 
 
 def send_request(payload: dict[str, Any]) -> dict[str, Any]:
-    """Dergon nje kerkese JSON te serveri permes TLS dhe kthen pergjigjen."""
     if not SERVER_CERT_PATH.exists():
         raise FileNotFoundError(
             "server_cert.pem mungon. Startoje serverin nje here qe ta gjeneroje certifikaten."
@@ -77,7 +72,6 @@ def send_request(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def colorize_token(token: str) -> str:
-    """Kthen JWT token-in me ngjyra sipas pjeseve: header, payload, signature."""
     parts = token.split(".")
     if len(parts) != 3:
         return token
@@ -91,7 +85,6 @@ def colorize_token(token: str) -> str:
 
 
 def print_token_parts(token: str) -> None:
-    """Shfaq JWT token-in e plote me ngjyra."""
     parts = token.split(".")
     if len(parts) != 3:
         print(token)
@@ -102,7 +95,6 @@ def print_token_parts(token: str) -> None:
 
 
 def format_claims_for_display(claims: dict[str, Any]) -> dict[str, Any]:
-    """Kthen claims me datat iat/exp ne format me te lexueshem."""
     formatted = dict(claims)
     for field in ("iat", "exp"):
         if field in formatted:
@@ -111,7 +103,6 @@ def format_claims_for_display(claims: dict[str, Any]) -> dict[str, Any]:
 
 
 def print_token_summary(token: str) -> None:
-    """Shfaq informata rreth token-it (sub, exp) nese public key ekziston."""
     if not PUBLIC_KEY_PATH.exists():
         return
     try:
@@ -136,7 +127,6 @@ def print_token_summary(token: str) -> None:
 
 
 def login() -> str | None:
-    """Ben login te serveri dhe kthen token-in nese eshte i suksesshem."""
     while True:
         username = input("Enter username: ").strip()
         password = read_password("Enter password: ")
@@ -160,7 +150,6 @@ def login() -> str | None:
 
 
 def request_protected_data(token: str | None) -> None:
-    """Kerkon te dhenat e mbrojtura nga serveri duke perdorur token-in."""
     if not token:
         print("You are not logged in.")
         return
@@ -182,7 +171,6 @@ def request_protected_data(token: str | None) -> None:
 
 
 def request_admin_data(token: str | None) -> None:
-    """Kerkon te dhena qe lejohen vetem per admin."""
     if not token:
         print("You are not logged in.")
         return
@@ -203,7 +191,6 @@ def request_admin_data(token: str | None) -> None:
 
 
 def logout(token: str | None) -> None:
-    """Fshin token-in dhe perfundon sesionin."""
     if token:
         try:
             send_request({"command": "logout"})
@@ -213,7 +200,6 @@ def logout(token: str | None) -> None:
 
 
 def main() -> None:
-    """Funksioni kryesor i client-it."""
     token = login()
     if not token:
         return
