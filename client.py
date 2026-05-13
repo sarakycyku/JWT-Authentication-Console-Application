@@ -91,19 +91,23 @@ def colorize_token(token: str) -> str:
 
 
 def print_token_parts(token: str) -> None:
-    """Shfaq JWT token-in te ndare ne header, payload dhe signature."""
+    """Shfaq JWT token-in e plote me ngjyra."""
     parts = token.split(".")
     if len(parts) != 3:
         print(token)
         return
 
-    header, payload, signature = parts
-    print("JWT token parts:")
-    print(f"{MAGENTA}Header:{RESET} {MAGENTA}{header}{RESET}")
-    print(f"{GREEN}Payload:{RESET} {GREEN}{payload}{RESET}")
-    print(f"{BLUE}Signature:{RESET} {BLUE}{signature}{RESET}")
-    print("Full token:")
+    print("JWT token:")
     print(colorize_token(token))
+
+
+def format_claims_for_display(claims: dict[str, Any]) -> dict[str, Any]:
+    """Kthen claims me datat iat/exp ne format me te lexueshem."""
+    formatted = dict(claims)
+    for field in ("iat", "exp"):
+        if field in formatted:
+            formatted[field] = datetime.fromtimestamp(formatted[field], tz=timezone.utc).isoformat()
+    return formatted
 
 
 def print_token_summary(token: str) -> None:
@@ -127,6 +131,8 @@ def print_token_summary(token: str) -> None:
         f"Token valid for user '{claims['sub']}' "
         f"with role '{claims.get('role', 'user')}' until {expires_at.isoformat()}."
     )
+    print("Decoded payload:")
+    print(json.dumps(format_claims_for_display(claims), indent=2))
 
 
 def login() -> str | None:

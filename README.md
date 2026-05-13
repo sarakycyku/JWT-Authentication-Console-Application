@@ -152,9 +152,19 @@ Connection established from ('127.0.0.1', 50002). Awaiting request...
 ```text
 Enter username: admin
 Enter password: ********
-Logged in. JWT token is:
+Logged in.
+JWT token:
 eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 Token valid for user 'admin' with role 'admin' until 2026-05-10T13:30:00+00:00.
+Decoded payload:
+{
+  "sub": "admin",
+  "role": "admin",
+  "iss": "jwt-console-server",
+  "aud": "jwt-console-client",
+  "iat": "2026-05-10T13:15:00+00:00",
+  "exp": "2026-05-10T13:30:00+00:00"
+}
 Enter command ('request_data', 'admin_data' or 'logout'): request_data
 Accessing protected data...
 Protected data received:
