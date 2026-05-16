@@ -95,15 +95,16 @@ python server.py
 
 Serveri duhet te shfaqe:
 
-```text
-Server: Waiting for connections on 127.0.0.1:5050...
-```
+<img width="856" height="141" alt="image" src="https://github.com/user-attachments/assets/e35a329d-b4f0-4d25-adc6-66ea903d6f63" />
+
 
 Pastaj starto klientin ne nje terminal tjeter:
 
 ```powershell
 python client.py
 ```
+<img width="1498" height="660" alt="image" src="https://github.com/user-attachments/assets/2c737180-79c5-4f59-9249-3b39580b17ae" />
+
 
 ## User-at testues
 
@@ -112,7 +113,7 @@ admin / admin123
 user / user123
 sara / sara123
 andi / andi123
-rubeja / ruveja123
+ruvejda / ruvejda123
 ```
 
 ## Komandat e klientit
@@ -128,56 +129,21 @@ logout
 
 `logout` e largon token-in nga memoria e klientit dhe e perfundon sesionin.
 
-## Shembull i ekzekutimit
+
 
 ### Server
 
-```text
-Server: Waiting for connections on 127.0.0.1:5050...
-Connection established from ('127.0.0.1', 50001). Awaiting request...
-Credentials received. Verifying...
-Authentication successful. JWT issued.
-Connection established from ('127.0.0.1', 50002). Awaiting request...
-```
+<img width="826" height="214" alt="image" src="https://github.com/user-attachments/assets/e20affb9-8dff-46ee-a4fa-39cba079e946" />
 
-### Client
 
-```text
-Enter username: admin
-Enter password: ********
-Logged in.
-JWT token:
-eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
-Token valid for user 'admin' with role 'admin' until 2026-05-10T13:30:00+00:00.
-Decoded payload:
-{
-  "sub": "admin",
-  "role": "admin",
-  "iss": "jwt-console-server",
-  "aud": "jwt-console-client",
-  "iat": "2026-05-10T13:15:00+00:00",
-  "exp": "2026-05-10T13:30:00+00:00"
-}
-Enter command ('request_data' or 'logout'): request_data
-Accessing protected data...
-Protected data received:
-{
-  "data": "This is protected data."
-}
-Enter command ('request_data' or 'logout'): logout
-Logging out...
-```
+
+
 
 ### Shembull me kredenciale te gabuara
 
-```text
-Enter username: admin
-Enter password: *****
-Unauthorized: invalid username or password
-1. Try again
-2. Quit
-Choose option:
-```
+<img width="832" height="157" alt="image" src="https://github.com/user-attachments/assets/ac8af0fe-c9f7-499b-b5f2-992ab1eeaeab" />
+
+
 
 ## Krijimi i `.pem` files
 
