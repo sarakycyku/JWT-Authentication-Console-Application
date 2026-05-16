@@ -31,7 +31,6 @@ Signature krijohet duke perdorur header, payload dhe nje secret key, te cilat ka
 
 - `login` kontrollon username/password dhe krijon JWT token nese kredencialet jane te sakta.
 - `protected-data` kerkon Bearer token dhe kthen te dhena vetem nese JWT eshte valid.
-- `admin-data` kerkon Bearer token dhe kthen te dhena vetem nese user-i ka rolin `admin`.
 - `logout` kthen pergjigje suksesi per mbylljen e sesionit nga klienti.
 
 Serveri perdor TLS, trajton gabimet e JSON-it, gabimet e lidhjes dhe gabimet e papritura.
@@ -41,7 +40,6 @@ Serveri perdor TLS, trajton gabimet e JSON-it, gabimet e lidhjes dhe gabimet e p
 `client.py` eshte console application qe lejon perdoruesin te shkruaje username dhe password. Password-i nuk shfaqet ne console gjate shkrimit. Pas login-it te suksesshem, klienti e ruan JWT token-in ne memorie lokale dhe mund te ekzekutoje komandat:
 
 - `request_data` kerkon te dhena te mbrojtura duke derguar JWT token si Bearer token.
-- `admin_data` kerkon te dhena qe lejohen vetem per admin.
 - `logout` e largon token-in nga klienti dhe e perfundon sesionin.
 
 ### JWT
@@ -60,8 +58,6 @@ JWT permban:
 ### Te dhenat e mbrojtura
 
 Komanda `request_data` simulon qasjen ne nje endpoint te mbrojtur. Serveri kontrollon nese kerkesa ka Bearer token, nese token-i eshte valid dhe nese nuk ka skaduar. Nese token-i mungon, eshte i pavlefshem ose ka skaduar, serveri kthen `401 Unauthorized`.
-
-Komanda `admin_data` simulon qasjen ne te dhena vetem per admin. Nese token-i eshte valid por roli nuk eshte `admin`, serveri kthen `403 Forbidden`.
 
 ## Setup
 
@@ -125,13 +121,10 @@ Pas login-it te suksesshem, klienti pranon keto komanda:
 
 ```text
 request_data
-admin_data
 logout
 ```
 
 `request_data` kerkon te dhenat e mbrojtura nga serveri.
-
-`admin_data` kerkon te dhena qe mund t'i shohe vetem admin-i.
 
 `logout` e largon token-in nga memoria e klientit dhe e perfundon sesionin.
 
@@ -165,19 +158,13 @@ Decoded payload:
   "iat": "2026-05-10T13:15:00+00:00",
   "exp": "2026-05-10T13:30:00+00:00"
 }
-Enter command ('request_data', 'admin_data' or 'logout'): request_data
+Enter command ('request_data' or 'logout'): request_data
 Accessing protected data...
 Protected data received:
 {
   "data": "This is protected data."
 }
-Enter command ('request_data', 'admin_data' or 'logout'): admin_data
-Accessing admin data...
-Admin data received:
-{
-  "data": "This is admin-only data."
-}
-Enter command ('request_data', 'admin_data' or 'logout'): logout
+Enter command ('request_data' or 'logout'): logout
 Logging out...
 ```
 

@@ -170,26 +170,6 @@ def request_protected_data(token: str | None) -> None:
         print(response.get("error", "Request failed"))
 
 
-def request_admin_data(token: str | None) -> None:
-    if not token:
-        print("You are not logged in.")
-        return
-
-    print("Accessing admin data...")
-    response = send_request(
-        {
-            "command": "admin-data",
-            "authorization": f"Bearer {token}",
-        }
-    )
-    if response.get("status") == 200:
-        print("Admin data received:")
-        print(f"Authenticated user: {response.get('authenticated_user')}")
-        print(json.dumps({"data": response["data"]}, indent=2))
-    else:
-        print(response.get("error", "Request failed"))
-
-
 def logout(token: str | None) -> None:
     if token:
         try:
@@ -205,11 +185,9 @@ def main() -> None:
         return
 
     while True:
-        command = input("Enter command ('request_data', 'admin_data' or 'logout'): ").strip().lower()
+        command = input("Enter command ('request_data' or 'logout'): ").strip().lower()
         if command == "request_data":
             request_protected_data(token)
-        elif command == "admin_data":
-            request_admin_data(token)
         elif command == "logout":
             logout(token)
             token = None
